@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %} {{ user|capfirst }}'s' Profile | ARMS {% endblock title %}
+
+{% block side_bar %}
+    {% include 'partial_active_element.html' with active='Profile' %}
+{% endblock side_bar %}
+
+{% block content %}
+<style type="text/css">
+  .table-wrapper-scroll-y {
+display: block;
+max-height: 350px;
+overflow-y: auto;
+-ms-overflow-style: -ms-autohiding-scrollbar;
+}
+</style>
+ <div class="container-fluid mt-5">
+<!-- Heading -->
+<div class="card mb-4 wow fadeIn">
+	<!--Card content-->
+    <div class="card-body d-sm-flex justify-content-between">
+	    <h6 class="mb-2 mb-sm-0 pt-1">
+    	<a href="/">Home Page</a>
+        	<span>/</span>
+            	<span>Profile</span>
+        </h6>
+    </div>
+</div>
+            <!-- Heading -->
+
+  <div class="row">
+    <div class="col-md-3">
+
+    	<!-- Card -->
+<div class="card">
+
+  <!-- Card image -->
+  <div class="view overlay">
+    <img class="card-img-top" src="{{ request.user.get_picture }}" alt="User Image">
+    <a class="mask" href="{% url 'edit_profile' %}">
+      <div class="mask white-text">Change Picture</div>
+    </a>
+  </div>
+
+{% if request.user.is_lecturer %}
+    <!-- Card content -->
+  <div class="card-body card-body-cascade text-center">
+
+    <small class="card-title">Name: {{ request.user.get_full_name|capfirst }}</small><br>
+    <small class="card-title">Role: Lecturer </small><br>
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+  </div>
+{% endif %}
+
+{% if request.user.is_student %}
+    <!-- Card content -->
+  <div class="card-body card-body-cascade text-center">
+
+    <small class="card-title">Name: {{ request.user.get_full_name|capfirst }}</small><br>
+    <small class="card-title">Role: Student</small><br>
+    <small class="card-title">Level: {{ level.level }}</small>
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+  </div>
+{% endif %}
+
+
+{% if request.user.is_superuser %}
+    <!-- Card content -->
+  <div class="card-body card-body-cascade text-center">
+
+    <small>Name: {{ request.user.get_full_name|capfirst }}</small><br>
+    <small>Role: Superuser</small>
+    <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+  </div>
+{% endif %}
+
+
+</div>
+<!-- Card -->
+    </div>
+    {% if request.user.is_lecturer %}
+    <div class="col-md-7 text-center">
+      <p>Allocated Courses</p>
+  <div class="table-wrapper-scroll-y">
+
+  <table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Course Code</th>
+      <th scope="col">Course Title</th>
+      <th scope="col">Course Unit</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for course in courses %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ course.courseCode }}</td>
+      <td>{{ course }}</td>
+      <td>{{ course.courseUnit }}</td>
+      <td>
+	  	  <span class="table-remove"><a href="{% url 'add_score_for' course.id %}" class="btn btn-info btn-rounded btn-sm my-0">Mark</a></span>
+	    </td>
+    </tr>
+    {% empty %}
+    <tr>
+    <td>{{ course.courseCode }}</td>
+      <td></td>
+      <td>No course is assigned to you !</td>
+      <td></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+    </div>
+  </div>
+  {% endif %}
+{% if request.user.is_student %}
+    <div class="col-md-7 text-center">
+      <p>Registered Courses</p>
+  <div class="table-wrapper-scroll-y">
+
+  <table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Course Code</th>
+      <th scope="col">Course Title</th>
+      <th scope="col">Course Unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for course in courses %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ course.course.courseCode }}</td>
+      <td>{{ course.course.courseTitle }}</td>
+      <td>{{ course.course.courseUnit }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+    <td>{{ course.courseCode }}</td>
+      <td></td>
+      <td>No course is registered this session !</td>
+      <td></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+    </div>
+  </div>
+  {% endif %}
+  {% if request.user.is_superuser %}
+    <div class="col-md-7 text-center">
+      <p>All staff list</p>
+  <div class="table-wrapper-scroll-y">
+
+  <table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Address</th>
+      <th scope="col">Picture</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for staff in staff %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{ staff.get_full_name|capfirst }}</td>
+      <td>{{ staff.address }}</td>
+      <td>{{ staff.get_picture.url }}</td>
+      <td>
+        <span class="table-remove">
+          <a href="{% url 'user_profile' id=staff.pk%}" class="btn btn-info btn-rounded btn-sm my-0">View</a>
+        </span>
+
+        <span class="table-remove">
+          <a href="" class="btn btn-info btn-rounded btn-sm my-0">Delete</a>
+        </span>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+    <td></td>
+      <td></td>
+      <td>No Staff to show !</td>
+      <td></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+    </div>
+  </div>
+  {% endif %}
+  <div class="col-md-2 text-center">
+    <small> Registered:<br><date>{{ user.date_joined|naturaltime }}</date></small><hr />
+    <small> Last Login:<br><date>{{ user.last_login|naturaltime }}</date></small><hr />
+    <small> Phone:<br><date>{% if user.phone %}{{ user.phone }}{% endif %}</date></small><hr />
+    <small> Email:<br><date>{{ user.email }}</date></small><hr />
+    <small> Address:<br><date>{{ user.address }}</date></small>
+  </div>
+</div>
+{% endblock %}
